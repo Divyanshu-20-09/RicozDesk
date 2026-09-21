@@ -1,7 +1,7 @@
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, Menu } from 'lucide-react';
 
-export default function Header({ title, userProfile }) {
+export default function Header({ title, userProfile, onMenuToggle }) {
   const initials = userProfile?.full_name
     ? userProfile.full_name
         .split(' ')
@@ -12,6 +12,9 @@ export default function Header({ title, userProfile }) {
 
   return (
     <header className="topbar">
+      <button type="button" className="menu-button icon-button" aria-label="Open navigation" onClick={onMenuToggle}>
+        <Menu size={20} />
+      </button>
       <div>
         <p className="eyebrow">Workspace</p>
         <h1 className="topbar-title">{title}</h1>

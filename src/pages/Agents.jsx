@@ -39,8 +39,9 @@ export default function Agents() {
       {loading ? (
         <Loading />
       ) : (
-        <div className="card" style={{ padding: 0 }}>
-          <table className="data-table">
+        <div className="card table-card" style={{ padding: 0 }}>
+          <div className="table-responsive">
+            <table className="data-table">
             <thead>
               <tr>
                 <th>Agent Name</th>
@@ -65,7 +66,8 @@ export default function Agents() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
 

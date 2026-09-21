@@ -147,7 +147,7 @@ export default function TicketDetails({ userProfile }) {
         <ArrowLeft size={16} /> Back to Tickets
       </button>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="ticket-details-layout" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>

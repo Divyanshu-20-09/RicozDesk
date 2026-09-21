@@ -22,6 +22,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchProfile = async (userId) => {
     try {
@@ -84,9 +85,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="app-container">
-        <Sidebar userProfile={userProfile} />
+        <Sidebar userProfile={userProfile} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        {sidebarOpen && <button type="button" className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
         <div className="main-wrapper">
-          <Header title={isAdmin ? 'Admin Console' : 'Agent Operations'} userProfile={userProfile} />
+          <Header
+            title={isAdmin ? 'Admin Console' : 'Agent Operations'}
+            userProfile={userProfile}
+            onMenuToggle={() => setSidebarOpen((open) => !open)}
+          />
           <main className="main-content">
             <Routes>
               <Route

@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import { LayoutDashboard, Ticket, Users, BarChart2, Settings, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Ticket, Users, BarChart2, Settings, LogOut, ShieldCheck, X } from 'lucide-react';
 
-export default function Sidebar({ userProfile }) {
+export default function Sidebar({ userProfile, isOpen, onClose }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -14,12 +14,15 @@ export default function Sidebar({ userProfile }) {
   const isAdmin = userProfile?.role === 'admin';
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
       <div className="sidebar-top">
         <div className="brand-block">
           <div className="brand-mark">
             <ShieldCheck size={18} />
           </div>
+          <button type="button" className="sidebar-close icon-button" aria-label="Close navigation" onClick={onClose}>
+            <X size={18} />
+          </button>
           <div>
             <div className="brand-name">RicozDesk</div>
             <div className="brand-subtitle">Ops Console</div>
@@ -27,25 +30,25 @@ export default function Sidebar({ userProfile }) {
         </div>
 
         <nav className="nav-list">
-          <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/" end onClick={onClose} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <LayoutDashboard size={17} />
             <span>Dashboard</span>
           </NavLink>
-          <NavLink to="/tickets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/tickets" onClick={onClose} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Ticket size={17} />
             <span>Tickets</span>
           </NavLink>
           {isAdmin && (
-            <NavLink to="/agents" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <NavLink to="/agents" onClick={onClose} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
               <Users size={17} />
               <span>Agents</span>
             </NavLink>
           )}
-          <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/reports" onClick={onClose} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <BarChart2 size={17} />
             <span>Reports</span>
           </NavLink>
-          <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/settings" onClick={onClose} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Settings size={17} />
             <span>Settings</span>
           </NavLink>
