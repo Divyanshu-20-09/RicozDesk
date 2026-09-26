@@ -35,7 +35,7 @@ export default function TicketTable({ tickets, loading }) {
           <tbody>
             {tickets.map((t) => (
               <tr key={t.id} onClick={() => navigate(`/tickets/${t.id}`)}>
-                <td style={{ fontWeight: 600, color: 'var(--color-text-muted)' }}>#{t.id}</td>
+                <td style={{ fontWeight: 600, color: '#475569' }}>#{t.id}</td>
                 <td style={{ fontWeight: 600 }}>{t.title}</td>
                 <td>
                   <div>{t.customer_name}</div>

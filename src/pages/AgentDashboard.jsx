@@ -5,6 +5,9 @@ import TicketTable from '../components/TicketTable';
 import Loading from '../components/Loading';
 import { AlertCircle, Clock, CheckCircle } from 'lucide-react';
 
+const isResolvedStatus = (status) => status === 'Resolved' || status === 'Closed';
+const isActiveStatus = (status) => status === 'Open' || status === 'In Progress' || status === 'Pending';
+
 export default function AgentDashboard({ userProfile }) {
   const [myTickets, setMyTickets] = useState([]);
   const [stats, setStats] = useState({ open: 0, pending: 0, resolved: 0 });
@@ -23,11 +26,12 @@ export default function AgentDashboard({ userProfile }) {
       .order('created_at', { ascending: false });
 
     if (!error && tickets) {
-      setMyTickets(tickets);
+      const activeTickets = tickets.filter((ticket) => isActiveStatus(ticket.status));
+      setMyTickets(activeTickets);
       setStats({
-        open: tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length,
-        pending: tickets.filter(t => t.status === 'Pending').length,
-        resolved: tickets.filter(t => t.status === 'Resolved' || t.status === 'Closed').length,
+        open: tickets.filter((ticket) => ticket.status === 'Open' || ticket.status === 'In Progress').length,
+        pending: tickets.filter((ticket) => ticket.status === 'Pending').length,
+        resolved: tickets.filter((ticket) => isResolvedStatus(ticket.status)).length,
       });
     }
     setLoading(false);
@@ -36,7 +40,7 @@ export default function AgentDashboard({ userProfile }) {
   if (loading) return <Loading />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       <div className="grid-3">
         <StatCard title="My Open Tickets" value={stats.open} icon={AlertCircle} color="#fee2e2" />
         <StatCard title="My Pending Tickets" value={stats.pending} icon={Clock} color="#fef3c7" />
@@ -44,7 +48,12 @@ export default function AgentDashboard({ userProfile }) {
       </div>
 
       <div>
-        <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Assigned To Me</h3>
+        <div className="section-heading-row">
+          <div>
+            <h3 className="section-title">Assigned To Me</h3>
+            <p className="section-subtitle">Tickets that still require action from you.</p>
+          </div>
+        </div>
         <TicketTable tickets={myTickets} loading={false} />
       </div>
     </div>

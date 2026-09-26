@@ -55,9 +55,9 @@ export default function AdminDashboard() {
       setRecentTickets(enrichedTickets.slice(0, 5));
       setStats({
         total: enrichedTickets.length,
-        open: enrichedTickets.filter((ticket) => ticket.status === 'Open').length,
+        open: enrichedTickets.filter((ticket) => ticket.status === 'Open' || ticket.status === 'In Progress').length,
         pending: enrichedTickets.filter((ticket) => ticket.status === 'Pending').length,
-        resolved: enrichedTickets.filter((ticket) => ticket.status === 'Resolved').length,
+        resolved: enrichedTickets.filter((ticket) => ticket.status === 'Resolved' || ticket.status === 'Closed').length,
       });
     } catch (fetchError) {
       console.error('Admin dashboard fetch failed:', fetchError);
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   if (loading) return <Loading />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       {error && (
         <div className="card" style={{ borderColor: '#fecaca', background: '#fef2f2', color: '#991b1b' }}>
           {error}
@@ -88,15 +88,15 @@ export default function AdminDashboard() {
 
       <div className="grid-2">
         <div className="card">
-          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>Operational Overview</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>Operational Overview</h3>
           <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
-            System activity metrics for response tracking and queue monitoring across support agents.
+            {stats.open + stats.pending} active tickets currently require attention, including {stats.pending} pending operation{stats.pending === 1 ? '' : 's'}.
           </p>
         </div>
         <div className="card">
-          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>SLA Health Risk</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>Resolution Overview</h3>
           <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
-            All standard tickets operating within resolution standard limits.
+            {stats.resolved} ticket{stats.resolved === 1 ? '' : 's'} currently marked Resolved or Closed. Closed and resolved tickets remain available through the ticket queue filters.
           </p>
         </div>
       </div>

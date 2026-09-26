@@ -5,6 +5,8 @@ import TicketTable from '../components/TicketTable';
 import Loading from '../components/Loading';
 import { Plus, Search } from 'lucide-react';
 
+const isActiveStatus = (status) => status === 'Open' || status === 'In Progress' || status === 'Pending';
+
 export default function Tickets() {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
@@ -12,7 +14,7 @@ export default function Tickets() {
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [priorityFilter, setPriorityFilter] = useState('');
 
   useEffect(() => {
@@ -24,13 +26,15 @@ export default function Tickets() {
 
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(t => 
-        t.title.toLowerCase().includes(q) || 
+      result = result.filter(t =>
+        t.title.toLowerCase().includes(q) ||
         t.customer_name.toLowerCase().includes(q) ||
         t.customer_email.toLowerCase().includes(q)
       );
     }
-    if (statusFilter) {
+    if (statusFilter === 'active') {
+      result = result.filter((t) => isActiveStatus(t.status));
+    } else if (statusFilter) {
       result = result.filter(t => t.status === statusFilter);
     }
     if (priorityFilter) {
@@ -49,34 +53,36 @@ export default function Tickets() {
 
     if (!error && data) {
       setTickets(data);
-      setFilteredTickets(data);
     }
     setLoading(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Ticket Queue</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+        <div>
+          <h2 className="page-title">Ticket Queue</h2>
+          <p className="page-subtitle">Focus on tickets that still need attention. Closed tickets remain available through the status filter.</p>
+        </div>
         <button className="btn btn-primary" onClick={() => navigate('/tickets/create')}>
           <Plus size={16} /> Create Ticket
         </button>
       </div>
 
-      <div className="card" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+      <div className="card ticket-filters">
+        <div className="search-field">
+          <Search size={16} />
           <input
             type="text"
             className="form-control"
             placeholder="Search tickets..."
-            style={{ paddingLeft: '34px' }}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="active">Active Tickets</option>
           <option value="">All Statuses</option>
           <option value="Open">Open</option>
           <option value="In Progress">In Progress</option>

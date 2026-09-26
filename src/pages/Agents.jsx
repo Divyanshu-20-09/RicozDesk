@@ -21,7 +21,7 @@ export default function Agents() {
   };
 
   const handleAddAgentNotice = () => {
-    alert("Creating users client-side requires backend admin rights. Create agent users directly via your Supabase Console.");
+    alert("For security, new login accounts are created through the Supabase Authentication dashboard. After creating the account, refresh this page to view the new agent profile.");
   };
 
   return (
@@ -29,7 +29,7 @@ export default function Agents() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Agent Roster</h2>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>Manage platform support agents and operational permissions.</p>
+          <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>View support agents and their current roles.</p>
         </div>
         <button className="btn btn-primary" onClick={handleAddAgentNotice}>
           <Plus size={16} /> Add Agent
@@ -74,7 +74,7 @@ export default function Agents() {
       <div className="card" style={{ display: 'flex', gap: '12px', background: '#fffbeb', borderColor: '#fef3c7' }}>
         <ShieldAlert color="#b45309" size={20} />
         <div style={{ fontSize: '13px', color: '#92400e' }}>
-          <strong>Admin Note:</strong> New agent registration enforces RLS security. Invite staff through the Supabase Authentication dashboard.
+          <strong>Agent setup:</strong> For security, new login accounts are created through the Supabase Authentication dashboard. Refresh this page after creating an account to see the new profile.
         </div>
       </div>
     </div>
