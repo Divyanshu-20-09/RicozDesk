@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Loading from './components/Loading';
 
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import AgentDashboard from './pages/AgentDashboard';
@@ -22,97 +23,111 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const fetchProfile = async (userId) => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+  const fetchProfile = async (currentSession) => {
+    if (!currentSession?.user) {
+      setUserProfile(null);
+      return;
+    }
 
-      if (error) {
-        console.error('Profile lookup failed:', error.message);
-        setUserProfile(null);
-        return;
-      }
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentSession.user.id)
+      .single();
 
+    if (error) {
+      console.error('Profile fetch error:', error);
+      setUserProfile(null);
+    } else {
       setUserProfile(data);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const initializeSession = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      setSession(currentSession);
+    const initialize = async () => {
+      const { data } = await supabase.auth.getSession();
 
-      if (currentSession?.user) {
-        await fetchProfile(currentSession.user.id);
-      } else {
-        setUserProfile(null);
-        setLoading(false);
+      setSession(data.session);
+
+      if (data.session) {
+        await fetchProfile(data.session);
       }
+
+      setLoading(false);
     };
 
-    initializeSession();
+    initialize();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      setSession(nextSession);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      setSession(newSession);
 
-      if (nextSession?.user) {
-        await fetchProfile(nextSession.user.id);
+      if (newSession) {
+        await fetchProfile(newSession);
       } else {
         setUserProfile(null);
-        setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) return <Loading />;
-
-  if (!session) {
-    return <Login onLoginSuccess={fetchProfile} />;
+  if (loading) {
+    return <Loading />;
   }
-
-  const isAdmin = userProfile?.role === 'admin';
 
   return (
     <BrowserRouter>
-      <div className="app-container">
-        <Sidebar userProfile={userProfile} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        {sidebarOpen && <button type="button" className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
-        <div className="main-wrapper">
-          <Header
-            title={isAdmin ? 'Admin Console' : 'Agent Operations'}
-            userProfile={userProfile}
-            onMenuToggle={() => setSidebarOpen((open) => !open)}
+      {!session ? (
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/login"
+            element={<Login onLoginSuccess={fetchProfile} />}
           />
-          <main className="main-content">
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      ) : (
+        <div className="app-container">
+          <Sidebar userProfile={userProfile} />
+
+          <div className="main-content">
+            <Header userProfile={userProfile} />
+
             <Routes>
               <Route
                 path="/"
-                element={isAdmin ? <AdminDashboard /> : <AgentDashboard userProfile={userProfile} />}
+                element={
+                  userProfile?.role === 'admin' ? (
+                    <AdminDashboard />
+                  ) : (
+                    <AgentDashboard userProfile={userProfile} />
+                  )
+                }
               />
+
               <Route path="/tickets" element={<Tickets />} />
               <Route path="/tickets/create" element={<CreateTicket />} />
-              <Route path="/tickets/:id" element={<TicketDetails userProfile={userProfile} />} />
-              <Route
-                path="/agents"
-                element={isAdmin ? <Agents /> : <Navigate to="/" replace />}
-              />
+              <Route path="/tickets/:id" element={<TicketDetails />} />
+              <Route path="/agents" element={<Agents />} />
               <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings userProfile={userProfile} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/settings" element={<Settings />} />
+
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to="/"
+                    replace
+                  />
+                }
+              />
             </Routes>
-          </main>
+          </div>
         </div>
-      </div>
+      )}
     </BrowserRouter>
   );
 }
